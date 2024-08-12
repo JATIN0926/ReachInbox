@@ -3,6 +3,7 @@ import {  Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import axios from "axios"
 import toast from "react-hot-toast";
+import OAuth from "../components/OAuth";
 const SignUp = () => {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -89,19 +90,10 @@ const SignUp = () => {
               )}
               </button>
   
-            {/* <OAuth /> */}
+            <OAuth text="Sign Up with Google" navigateTo="/sign-in" />
           </form>
           <p className=" font-OpenSans-Medium"> OR</p>
-          <div className="w-[80%] cursor-pointer h-[3rem] border-[1px] border-[#707172] bg-transparent rounded-md flex items-center justify-center gap-2">
-            <div className=" aspect-square w-6 relative">
-              <img
-                src="/icons/google.webp"
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <p className=" font-OpenSans-Regular">Sign Up with Google</p>
-          </div>
+         
 
           <h1 className=" font-OpenSans-Regular text-[#909296]">
             Already have an account?{" "}
