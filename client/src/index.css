@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+    font-family: 'OpenSans Bold';
+    src: url('./fonts/OpenSans_Condensed-Bold.ttf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+@font-face {
+    font-family: 'OpenSans Light';
+    src: url('./fonts/OpenSans_Condensed-Light.ttf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+@font-face {
+    font-family: 'OpenSans Medium';
+    src: url('./fonts/OpenSans_Condensed-Medium.ttf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+@font-face {
+    font-family: 'OpenSans Regular';
+    src: url('./fonts/OpenSans_Condensed-Regular.ttf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+@font-face {
+    font-family: 'OpenSans SemiBold';
+    src: url('./fonts/OpenSans_Condensed-SemiBold.ttf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
