@@ -1,13 +1,34 @@
-import { Dropdown, Select } from "flowbite-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import MailCard from "./MailCard";
 
 const DashInbox = () => {
+  const [emails, setEmails] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(null); // State to track selected email
+
+  useEffect(() => {
+    const fetchInboxEmails = async () => {
+      try {
+        const response = await axios.get("/api/v1/onebox/inbox");
+        setEmails(response.data);
+      } catch (error) {
+        console.error("Failed to fetch inbox emails", error);
+      }
+    };
+    
+    fetchInboxEmails();
+  }, []);
+
+  const handleEmailClick = (email) => {
+    setSelectedEmail(email); // Set the selected email when a MailCard is clicked
+  };
+
   return (
-    <div className=" text-white text-2xl absolute right-0 top-[13%] w-[95%] h-[87vh] max-h-[90vh]">
+    <div className="text-white text-2xl absolute right-0 top-[13%] w-[95%] h-[87vh] max-h-[90vh]">
       <div className="w-full h-full flex items-center justify-center">
         <div className="w-[25%] h-full px-4 py-2 flex flex-col items-start justify-start gap-2">
           <div className="flex items-center justify-between w-full">
-            <h1 className=" text-[#4285F4] text-xl font-OpenSans-Bold tracking-wide">
+            <h1 className="text-[#4285F4] text-xl font-OpenSans-Bold tracking-wide">
               All Inbox(s)
             </h1>
             <img
@@ -16,8 +37,8 @@ const DashInbox = () => {
               className="h-9 w-9 cursor-pointer"
             />
           </div>
-          <h1 className=" font-OpenSans-Bold text-[1.1rem]">
-            25/25{" "}
+          <h1 className="font-OpenSans-Bold text-[1.1rem]">
+            {emails.length}/25{" "}
             <span className="text-[#7F7F7F] font-OpenSans-Regular">
               {" "}
               Inboxes selected
@@ -33,28 +54,29 @@ const DashInbox = () => {
               src="/icons/search.png"
               alt="search"
               className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2"
-            />{" "}
-          </div>
-
-          <div className="flex items-center justify-between w-full border-b-[1px] border-b-[#343A40] py-2.5">
-            <div className="flex items-center justify-center gap-1">
-              <div className="  rounded-full bg-[#222426] p-1 px-2 text-[#5C7CFA] text-sm">
-                26
-              </div>
-              <h1 className=" text-[#E6E6E6] text-[1.1rem] font-OpenSans-Bold tracking-wide">
-                New Replies
-              </h1>
-            </div>
-            <Dropdown label="Newest" size="xs" className=" border-2 border-white bg-black font-OpenSans-SemiBold" color="black">
-              <Dropdown.Item className=" rounded-md text-sm font-OpenSans-SemiBold bg-black text-white">Latest</Dropdown.Item>
-            </Dropdown>
+            /> 
           </div>
           <div className="flex flex-col w-full">
-            <MailCard />
+            {emails.map(email => (
+              <MailCard key={email._id} email={email} onClick={() => handleEmailClick(email)} />
+            ))}
           </div>
         </div>
-        <div className="w-[50%] bg-green-900 h-full"></div>
-        <div className="w-[25%] bg-blue-900 h-full"></div>
+        
+        <div className="w-[75%] h-full flex items-center justify-center">
+          {selectedEmail ? (
+            <div className="w-[50%] bg-green-900 h-full p-4">
+              <h2 className="text-xl font-bold">{selectedEmail.subject}</h2>
+              <p className="text-sm">From: {selectedEmail.from.email}</p>
+              <p className="text-sm">To: {selectedEmail.to.email}</p>
+              <p className="mt-4">{selectedEmail.body}</p>
+            </div>
+          ) : (
+            <h1 className="font-OpenSans-Bold text-4xl w-1/2 text-center">
+              Your Inbox at a Glance: Manage, Respond, and Conquer Your Cold Outreach with Ease.
+            </h1>
+          )}
+        </div>
       </div>
     </div>
   );

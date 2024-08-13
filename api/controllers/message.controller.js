@@ -33,3 +33,25 @@ export const sendMail = async (req, res) => {
     res.status(500).json({ error: "Failed to send mail" });
   }
 };
+
+export const getInbox = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).populate({
+      path: 'inboxes',
+      populate: [
+        { path: 'from', select: 'email' },
+        { path: 'to', select: 'email' }
+      ]
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const inboxEmails = user.inboxes;
+
+    res.status(200).json(inboxEmails);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve inbox emails" });
+  }
+};
