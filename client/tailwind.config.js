@@ -14,6 +14,10 @@ export default {
         "OpenSans-Medium": ["OpenSans Medium", "sans-serif"],
         "OpenSans-Regular": ["OpenSans Regular", "sans-serif"],
         "OpenSans-SemiBold": ["OpenSans SemiBold", "sans-serif"],
+        "DMSans-Bold": ["DMSans Bold", "sans-serif"],
+        "DMSans-Medium": ["DMSans Medium", "sans-serif"],
+        "DMSans-Regular": ["DMSans Regular", "sans-serif"],
+        "DMSans-SemiBold": ["DMSans SemiBold", "sans-serif"],
       }
     },
   },
