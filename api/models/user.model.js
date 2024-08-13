@@ -26,7 +26,13 @@ const userSchema = new mongoose.Schema(
     },
     company: {
       type: String,
-    }
+    },
+    inboxes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message',
+      },
+    ],
   },
   { timestamps: true }
 );

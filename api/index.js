@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.route.js";
+import messageRoutes from "./routes/message.route.js";
+import cors from 'cors';
 dotenv.config();
 mongoose
   .connect(process.env.MONGO_URI)
@@ -16,12 +18,19 @@ mongoose
 
 const app = express();
 
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Allow cookies to be sent
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
 //routes
 
-app.use("/api/auth", authRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/onebox", messageRoutes);
 
 
 

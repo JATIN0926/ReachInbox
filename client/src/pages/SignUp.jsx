@@ -20,7 +20,7 @@ const SignUp = () => {
     }
     try {
       setLoading(true);
-      const {data} = await axios.post("/api/auth/signup",formData);
+      const {data} = await axios.post("/api/v1/auth/signup",formData);
 
       console.log(data)
       if (data.success === false) {

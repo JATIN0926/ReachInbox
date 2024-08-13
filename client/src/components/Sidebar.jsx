@@ -13,7 +13,7 @@ const DashSidebar = () => {
   ];
 
   return (
-    <div className="min-h-screen h-screen w-[7%] fixed top-0 left-0 border-[#343A40] border-[1px]">
+    <div className="min-h-screen h-screen w-[5%] fixed top-0 left-0 border-[#343A40] border-[1px]">
       <div className="h-full w-full flex flex-col items-center justify-between py-6">
         <img
           src="/icons/oneBoxLogo.svg"
@@ -24,7 +24,7 @@ const DashSidebar = () => {
           {tabs.map((tab) => (
             <Link to={tab.path} key={tab.alt}>
               <div
-                className={`aspect-square w-10 p-2 rounded ${
+                className={`aspect-square w-[2.85rem] p-2 rounded ${
                   location.search === tab.path.substring(1) ? "bg-gray-600" : ""
                 }`}
               >
@@ -33,7 +33,7 @@ const DashSidebar = () => {
             </Link>
           ))}
         </div>
-        <div className="">profile</div>
+        <div className="text-white">profile</div>
       </div>
     </div>
   );

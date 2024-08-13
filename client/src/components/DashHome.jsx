@@ -1,6 +1,6 @@
 const DashHome = () => {
   return (
-    <div className=" absolute right-0 top-[15%] w-[93%] h-[90vh] max-h-[90vh] bg-black text-white">
+    <div className=" absolute right-0 top-[15%] w-[93%] h-[87vh] max-h-[90vh] bg-black text-white">
       <div className="w-full h-full flex items-center justify-center">
         <div className=" flex flex-col items-center justify-center gap-4 w-full">
           <img

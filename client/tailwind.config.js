@@ -18,6 +18,10 @@ export default {
         "DMSans-Medium": ["DMSans Medium", "sans-serif"],
         "DMSans-Regular": ["DMSans Regular", "sans-serif"],
         "DMSans-SemiBold": ["DMSans SemiBold", "sans-serif"],
+        "Inter-Bold": ["Inter Bold", "sans-serif"],
+        "Inter-Medium": ["Inter Medium", "sans-serif"],
+        "Inter-Regular": ["Inter Regular", "sans-serif"],
+        "Inter-SemiBold": ["Inter SemiBold", "sans-serif"],
       }
     },
   },
