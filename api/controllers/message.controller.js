@@ -9,7 +9,13 @@ export const sendMail = async (req, res) => {
     const recipient = await User.findOne({ email: to });
     if (!recipient) {
       console.error(`Recipient not found for email: ${to}`);
-      return res.status(404).json({ error: "Recipient not found" });
+      return res.status(404).json({ message: "Recipient not found" });
+    }
+
+    if (recipient._id.toString() === fromUserId) {
+      return res
+        .status(404)
+        .json({ message: "Cannot send Email to yourself!" });
     }
 
     const newMessage = await Message.create({
@@ -39,11 +45,11 @@ export const getInbox = async (req, res) => {
     const userId = req.user.id;
 
     const user = await User.findById(userId).populate({
-      path: 'inboxes',
+      path: "inboxes",
       populate: [
-        { path: 'from', select: 'email' },
-        { path: 'to', select: 'email' }
-      ]
+        { path: "from", select: "email username contactNo company" },
+        { path: "to", select: "email username contactNo company" },
+      ],
     });
 
     if (!user) return res.status(404).json({ error: "User not found" });

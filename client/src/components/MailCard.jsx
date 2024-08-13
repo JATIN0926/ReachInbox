@@ -5,7 +5,7 @@ const MailCard = ({ email, onClick }) => {
               <h1 className="text-base font-Inter-Medium">{email.from.email}</h1>
               <p className=" text-[#393c40] text-[0.9rem] font-Inter-Regular">{new Date(email.createdAt).toLocaleDateString()}</p>
           </div>
-          <p className=" line-clamp-2 text-sm font-Inter-Regular text-[#E1E0E0]">{email.body}</p>
+          <p className=" line-clamp-2 text-sm font-Inter-Regular text-[#E1E0E0] w-[90%]">{email.body}</p>
           <div className=" bg-[#222426] rounded-full p-0.5 px-3.5 flex items-center justify-center gap-2">
               <div className="rounded-full w-4 h-4 bg-[#57E0A6] border-[3px] border-[#2D3833]"></div>
               <p className="text-[#57E0A6] text-[0.8rem] font-OpenSans-SemiBold tracking-wide">{email.isRead ? 'Read' : 'Unread'}</p>

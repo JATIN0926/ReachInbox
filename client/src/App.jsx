@@ -3,13 +3,16 @@ import HomePage from "./pages/HomePage";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import { Toaster } from "react-hot-toast";
+import PrivateRoute from "./components/PrivateRoute";
 function App() {
   return (
     <>
       <Toaster />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<HomePage />} />
+          </Route>
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
         </Routes>

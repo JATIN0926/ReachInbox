@@ -25,7 +25,7 @@ const ComposeMail = () => {
       toast.success(response.data.message);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to send mail");
+      toast.error(error.response.data.message);
     }
   };
 

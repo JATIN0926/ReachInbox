@@ -13,7 +13,6 @@ const SignUp = () => {
   const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
-    console.log(formData);
   };
 
   const handleSubmit = async (e) => {

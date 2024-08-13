@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
 const DashSidebar = () => {
@@ -12,6 +13,7 @@ const DashSidebar = () => {
     { src: "/icons/inbox.svg", alt: "Inbox", path: "/?tab=inbox" },
   ];
 
+  const { currentUser } = useSelector((state) => state.user);
   return (
     <div className="min-h-screen h-screen w-[5%] fixed top-0 left-0 border-[#343A40] border-[1px]">
       <div className="h-full w-full flex flex-col items-center justify-between py-6">
@@ -33,7 +35,9 @@ const DashSidebar = () => {
             </Link>
           ))}
         </div>
-        <div className="text-white">profile</div>
+        <div className="relative h-10 w-10">
+          <img src={currentUser.profilePicture} alt="" className=" object-cover rounded-full h-full w-full" />
+        </div>
       </div>
     </div>
   );
