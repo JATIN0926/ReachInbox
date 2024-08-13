@@ -1,35 +1,32 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-  from: {
-    type: String,  // Email address of the sender
-    required: true,
+const messageSchema = new mongoose.Schema(
+  {
+    from: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    subject: {
+      type: String,
+      required: true
+    },
+    body: {
+      type: String,
+      required: true
+    },
+    isRead: {
+      type: Boolean,
+      default: false
+    }
   },
-  to: {
-    type: String,  // Email address of the recipient
-    required: true,
-  },
-  subject: {
-    type: String,  // Subject of the email
-    required: true,
-  },
-  body: {
-    type: String,  // HTML content of the email
-    required: true,
-  },
-  status: {
-    type: String,  
-  },
-  isRead: {
-    type: Boolean,
-    default: false
-  }
-  user: {
-    type: mongoose.Schema.Types.ObjectId,  // Reference to the user who owns this message
-    ref: 'User',
-    required: true,
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const Message = mongoose.model("Message", messageSchema);
 
