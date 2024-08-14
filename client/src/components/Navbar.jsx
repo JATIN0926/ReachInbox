@@ -41,6 +41,7 @@ const Navbar = () => {
             onClick={handleSignOut}
             data-tooltip-id="logout-tooltip"
             data-tooltip-content="Sign Out"
+            data-tooltip-place="right"
           />
         </div>
       </div>
