@@ -21,7 +21,7 @@ const ComposeMail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/v1/onebox/send", formData,  { withCredentials: true });
+      const response = await axios.post("/api/v1/onebox/send", formData);
       toast.success(response.data.message);
     } catch (error) {
       console.log(error);

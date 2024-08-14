@@ -138,11 +138,7 @@ const DashInbox = ({ showSentEmails }) => {
           ...formData,
           replyTo: selectedEmail._id, // add replyTo field to link this reply to the original email
         },
-        {
-          withCredentials: true,
-        }
       );
-      console.log(response.data.newMessage)
       const newReply = response.data.newMessage; // Assuming the API returns the new reply data
       setReplies((prevReplies) => [...prevReplies, newReply]);
   
