@@ -28,7 +28,7 @@ export default function OAuth({text,navigateTo}) {
       if (res.ok) {
         toast.success("SuccessFul!");
         dispatch(signInSucess(data));
-        navigate("/");
+        navigate(navigateTo);
       }
     } catch (error) {
       toast.error("Something went wrong!");
