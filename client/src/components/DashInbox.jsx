@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import MailCard from "./MailCard";
-import { Button, Dropdown, Modal, Spinner } from "flowbite-react";
+import {  Dropdown, Modal, Spinner } from "flowbite-react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import ReplyCard from "./ReplyCard";
@@ -17,6 +17,7 @@ const DashInbox = ({ showSentEmails }) => {
   const [openModal, setOpenModal] = useState(false);
   const [replies, setReplies] = useState([]);
   const [isLoading, setisLoading] = useState(false);
+  const [sortOrder, setSortOrder] = useState('newest');
 
   const statuses = [
     { label: "Meeting Completed", color: "bg-yellow-500" },
@@ -25,6 +26,11 @@ const DashInbox = ({ showSentEmails }) => {
     { label: "Meeting Booked", color: "bg-violet-500" },
   ];
 
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+  
+  // Update fetchInboxEmails to use the sorting order
   const fetchInboxEmails = async () => {
     try {
       setisLoading(true);
@@ -32,7 +38,10 @@ const DashInbox = ({ showSentEmails }) => {
         ? "/api/v1/onebox/getsentmails"
         : "/api/v1/onebox/inbox";
       const response = await axios.get(endpoint);
-      setEmails(response.data);
+      const sortedEmails = sortOrder === 'newest'
+        ? response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        : response.data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      setEmails(sortedEmails);
       setisLoading(false);
     } catch (error) {
       setisLoading(false);
@@ -41,7 +50,22 @@ const DashInbox = ({ showSentEmails }) => {
   };
   useEffect(() => {
     fetchInboxEmails();
-  }, []);
+  }, [sortOrder]);
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'r' && selectedEmail) {
+        setOpenModal(true);
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyPress);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [selectedEmail]);
+  
 
   const handleStatusChange = async (status) => {
     try {
@@ -142,6 +166,18 @@ const DashInbox = ({ showSentEmails }) => {
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      setisLoading(true);
+      await fetchInboxEmails();
+      toast.success("Inbox refreshed");
+    } catch (error) {
+      toast.error("Failed to refresh inbox");
+    } finally {
+      setisLoading(false);
+    }
+  };
+
   return (
     <div className=" absolute right-0 top-[13%] w-[95%] h-[87vh] max-h-[90vh]">
       <div className="w-full h-full flex items-center justify-center">
@@ -155,12 +191,14 @@ const DashInbox = ({ showSentEmails }) => {
                 src="/icons/refresh_black.svg"
                 alt="refresh"
                 className="h-9 w-9 cursor-pointer"
+                onClick={handleRefresh}
               />
             ) : (
               <img
                 src="/icons/refresh.svg"
                 alt="refresh"
                 className="h-9 w-9 cursor-pointer"
+                onClick={handleRefresh}
               />
             )}
           </div>
@@ -195,15 +233,25 @@ const DashInbox = ({ showSentEmails }) => {
               </h1>
             </div>
             <Dropdown
-              label="Newest"
-              size="xs"
-              className=" border-2 border-white bg-black font-Inter-SemiBold"
-              color="black"
-            >
-              <Dropdown.Item className=" rounded-md text-sm font-OpenSans-SemiBold ">
-                Latest
-              </Dropdown.Item>
-            </Dropdown>
+  label={sortOrder === 'newest' ? "Newest" : "Oldest"}
+  size="xs"
+  className="border-2 border-white bg-black font-Inter-SemiBold"
+  color="black"
+>
+  <Dropdown.Item
+    className="rounded-md text-sm font-OpenSans-SemiBold"
+    onClick={() => handleSortChange('newest')}
+  >
+    Newest
+  </Dropdown.Item>
+  <Dropdown.Item
+    className="rounded-md text-sm font-OpenSans-SemiBold"
+    onClick={() => handleSortChange('oldest')}
+  >
+    Oldest
+  </Dropdown.Item>
+</Dropdown>
+
           </div>
           <div className="flex flex-col w-full overflow-y-auto">
             {isLoading ? (
@@ -318,7 +366,6 @@ const DashInbox = ({ showSentEmails }) => {
                   </div>
                 </div>
 
-                {/* Render replies below the main mail */}
                 {replies.map((reply, index) => (
                   <ReplyCard key={index} reply={reply} theme={theme} />
                 ))}
@@ -331,8 +378,9 @@ const DashInbox = ({ showSentEmails }) => {
                     <img src="/icons/reply.svg" alt="img" className="w-6 h-6" />
                     Reply
                   </button>
-                  <Modal show={openModal} onClose={() => setOpenModal(false)}>
-                    <Modal.Body>
+                  <Modal show={openModal} onClose={() => setOpenModal(false)} >
+                    <Modal.Body className="bg-[#141517] p-0">
+                    <Modal.Header className=" h-[10vh]"></Modal.Header>
                       <form
                         className="w-[100%] h-[100%] bg-[#141517] flex flex-col rounded-lg gap-1"
                         onSubmit={handleSubmit}
@@ -342,10 +390,11 @@ const DashInbox = ({ showSentEmails }) => {
                             Send Mail
                           </p>
                         </div>
-                        <div className="w-full py-1.5 px-8 font-OpenSans-SemiBold text-[#E7E7E7] text-lg border-b-[1px] border-b-[#34383D] flex items-center justify-center gap-1">
-                          <span className="text-[#BAB9BD] font-OpenSans-Regular">
-                            To: {formData.to}
-                          </span>
+                        <div className="w-full py-1.5 px-8 font-OpenSans-SemiBold text-[#E7E7E7] text-lg border-b-[1px] border-b-[#34383D] flex items-center justify-start gap-1">
+                          <h1 className="text-[#BAB9BD] font-OpenSans-Regular">
+                            { console.log(selectedEmail)}
+                            To: {selectedEmail.from.email}
+                          </h1>
                         </div>
                         <div className="w-full py-1.5 px-8 font-OpenSans-SemiBold text-[#E7E7E7] text-lg border-b-[1px] border-b-[#34383D] flex items-center justify-center gap-1">
                           <span className="text-[#BAB9BD] font-OpenSans-Regular">
@@ -368,7 +417,7 @@ const DashInbox = ({ showSentEmails }) => {
                         ></textarea>
                         <button
                           type="submit"
-                          className="my-3 rounded-md bg-gradient-to-r from-[#4B63DD] to-[#0524BF] font-OpenSans-SemiBold px-6 p-2 w-[15%] self-center"
+                          className="my-3 rounded-md bg-gradient-to-r from-[#4B63DD] to-[#0524BF] font-OpenSans-SemiBold px-6 p-2 w-[15%] self-center text-white"
                         >
                           Send
                         </button>

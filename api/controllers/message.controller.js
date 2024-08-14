@@ -55,10 +55,10 @@ export const getInbox = async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Filter emails to include only those received by the user
-    const inboxEmails = user.inboxes.filter(
-      (email) => email.to._id.toString() === userId
-    );
+    // Filter and sort emails by creation date (newest first)
+    const inboxEmails = user.inboxes
+      .filter((email) => email.to._id.toString() === userId)
+      .sort((a, b) => b.createdAt - a.createdAt);
 
     res.status(200).json(inboxEmails);
   } catch (error) {
@@ -80,16 +80,17 @@ export const getSentEmails = async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Filter emails to include only those sent by the user
-    const sentEmails = user.inboxes.filter(
-      (email) => email.from._id.toString() === userId
-    );
+    // Filter and sort emails by creation date (newest first)
+    const sentEmails = user.inboxes
+      .filter((email) => email.from._id.toString() === userId)
+      .sort((a, b) => b.createdAt - a.createdAt);
 
     res.status(200).json(sentEmails);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve sent emails" });
   }
 };
+
 
 export const updateMailStatus = async (req, res) => {
   try {

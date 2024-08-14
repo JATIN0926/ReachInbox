@@ -9,7 +9,6 @@ const DashSidebar = () => {
     { src: "/icons/email.svg", alt: "Email", path: "/?tab=email" },
     { src: "/icons/sent.svg", alt: "Sent", path: "/?tab=sent" },
     { src: "/icons/inbox_2.svg", alt: "Inbox", path: "/?tab=inbox" },
-    { src: "/icons/people.svg", alt: "People", path: "/?tab=people" },
   ];
 
   const { currentUser } = useSelector((state) => state.user);
