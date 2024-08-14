@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 
 export const sendMail = async (req, res) => {
   try {
-    const { to, subject, body ,status = null } = req.body;
+    const { to, subject, body, status = null } = req.body;
     const fromUserId = req.user.id;
 
     const recipient = await User.findOne({ email: to });
@@ -23,7 +23,7 @@ export const sendMail = async (req, res) => {
       to: recipient._id,
       subject,
       body,
-      status 
+      status,
     });
 
     await User.findByIdAndUpdate(fromUserId, {
@@ -56,14 +56,15 @@ export const getInbox = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     // Filter emails to include only those received by the user
-    const inboxEmails = user.inboxes.filter(email => email.to._id.toString() === userId);
+    const inboxEmails = user.inboxes.filter(
+      (email) => email.to._id.toString() === userId
+    );
 
     res.status(200).json(inboxEmails);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve inbox emails" });
   }
 };
-
 
 export const getSentEmails = async (req, res) => {
   try {
@@ -80,7 +81,9 @@ export const getSentEmails = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     // Filter emails to include only those sent by the user
-    const sentEmails = user.inboxes.filter(email => email.from._id.toString() === userId);
+    const sentEmails = user.inboxes.filter(
+      (email) => email.from._id.toString() === userId
+    );
 
     res.status(200).json(sentEmails);
   } catch (error) {
@@ -88,23 +91,25 @@ export const getSentEmails = async (req, res) => {
   }
 };
 
-
 export const updateMailStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const message = await Message.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const message = await Message.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
     if (!message) {
-      return res.status(404).json({ message: 'Message not found' });
+      return res.status(404).json({ message: "Message not found" });
     }
     res.status(200).json(message);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update status' });
+    res.status(500).json({ message: "Failed to update status" });
   }
 };
 
-
 export const sendReply = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   const { to, subject, body, replyTo } = req.body;
   try {
     const newMessage = new Message({
@@ -112,7 +117,7 @@ export const sendReply = async (req, res) => {
       to,
       subject,
       body,
-      replyTo
+      replyTo,
     });
     await newMessage.save();
     res.status(201).json({ message: "Reply sent successfully", newMessage });
@@ -120,3 +125,40 @@ export const sendReply = async (req, res) => {
     res.status(500).json({ message: "Failed to send reply", error });
   }
 };
+
+export const getReplies = async (req, res) => {
+  const { mailId } = req.params;
+
+  console.log("entered into controller",mailId)
+
+  try {
+    // Fetch replies where the `replyTo` field contains the `mailId`
+    const replies = await Message.find({ replyTo: mailId }).populate([
+      { path: "from", select: "email username contactNo company" },
+      { path: "to", select: "email username contactNo company" },
+    ]);
+
+    console.log(replies)
+    res.status(200).json(replies);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch replies" });
+  }
+};
+
+
+export const deleteMail = async (req,res)=>{
+  const { mailId } = req.params;
+
+  try {
+    const deletedMail = await Message.findByIdAndDelete(mailId);
+
+    if (!deletedMail) {
+      return res.status(404).json({ message: 'Mail not found' });
+    }
+
+    res.status(200).json({ message: 'Mail deleted successfully' });
+  } catch (error) {
+    console.error('Failed to delete mail', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}

@@ -4,6 +4,7 @@ import MailCard from "./MailCard";
 import { Button, Dropdown, Modal, Spinner } from "flowbite-react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import ReplyCard from "./ReplyCard";
 
 const DashInbox = ({ showSentEmails }) => {
   const [emails, setEmails] = useState([]);
@@ -14,6 +15,8 @@ const DashInbox = ({ showSentEmails }) => {
     color: "bg-gray-600",
   });
   const [openModal, setOpenModal] = useState(false);
+  const [replies, setReplies] = useState([]);
+  const [isLoading, setisLoading] = useState(false);
 
   const statuses = [
     { label: "Meeting Completed", color: "bg-yellow-500" },
@@ -22,19 +25,21 @@ const DashInbox = ({ showSentEmails }) => {
     { label: "Meeting Booked", color: "bg-violet-500" },
   ];
 
+  const fetchInboxEmails = async () => {
+    try {
+      setisLoading(true);
+      const endpoint = showSentEmails
+        ? "/api/v1/onebox/getsentmails"
+        : "/api/v1/onebox/inbox";
+      const response = await axios.get(endpoint);
+      setEmails(response.data);
+      setisLoading(false);
+    } catch (error) {
+      setisLoading(false);
+      console.error("Failed to fetch inbox emails", error);
+    }
+  };
   useEffect(() => {
-    const fetchInboxEmails = async () => {
-      try {
-        const endpoint = showSentEmails
-          ? "/api/v1/onebox/getsentmails"
-          : "/api/v1/onebox/inbox";
-        const response = await axios.get(endpoint);
-        setEmails(response.data);
-      } catch (error) {
-        console.error("Failed to fetch inbox emails", error);
-      }
-    };
-
     fetchInboxEmails();
   }, []);
 
@@ -61,7 +66,7 @@ const DashInbox = ({ showSentEmails }) => {
     }
   };
 
-  const handleEmailClick = (email) => {
+  const handleEmailClick = async (email) => {
     setSelectedEmail(email);
     const currentStatus = statuses.find(
       (status) => status.label === email.status
@@ -69,8 +74,17 @@ const DashInbox = ({ showSentEmails }) => {
       label: "No Status",
       color: "bg-gray-600",
     };
-    console.log(selectedEmail);
-    console.log(email.from._id);
+    console.log("email id", email._id);
+    try {
+      const response = await axios.get(
+        `/api/v1/onebox/getreplies/${email._id}`
+      );
+      setReplies(response.data);
+      fetchInboxEmails();
+    } catch (error) {
+      console.error("Failed to fetch replies", error);
+    }
+
     setFormData({
       to: email.from._id,
       subject: `Re: ${email.subject}`,
@@ -104,12 +118,27 @@ const DashInbox = ({ showSentEmails }) => {
           withCredentials: true,
         }
       );
+      console.log(response.data.newMessage)
+      const newReply = response.data.newMessage; // Assuming the API returns the new reply data
+      setReplies((prevReplies) => [...prevReplies, newReply]);
+  
 
       toast.success(response.data.message);
       setOpenModal(false); // close the modal after sending
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
+    }
+  };
+
+  const handleDeleteEmail = async (emailId) => {
+    try {
+      await axios.delete(`/api/v1/onebox/delete/${emailId}`);
+      setEmails((prevEmails) => prevEmails.filter((email) => email._id !== emailId));
+      toast.success("Email deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete email", error);
+      toast.error("Failed to delete email");
     }
   };
 
@@ -135,13 +164,7 @@ const DashInbox = ({ showSentEmails }) => {
               />
             )}
           </div>
-          <h1 className="font-OpenSans-Bold text-[1.1rem]">
-            {emails.length}/25{" "}
-            <span className="text-[#7F7F7F] font-OpenSans-Regular">
-              {" "}
-              Inboxes selected
-            </span>
-          </h1>
+          
           <div className="w-full relative">
             <input
               type="text"
@@ -183,17 +206,24 @@ const DashInbox = ({ showSentEmails }) => {
             </Dropdown>
           </div>
           <div className="flex flex-col w-full overflow-y-auto">
-            {emails.length > 0 ? (
+            {isLoading ? (
+              <Spinner />
+            ) : emails.length > 0 ? (
               emails.map((email) => (
                 <MailCard
                   key={email._id}
                   email={email}
                   showSentEmails={showSentEmails}
                   onClick={() => handleEmailClick(email)}
+                  onDelete={handleDeleteEmail} 
                 />
               ))
             ) : (
-              <Spinner />
+              <div className="flex justify-center items-center h-full">
+                <p className=" font-OpenSans-SemiBold text-2xl">
+                  No emails yet
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -201,7 +231,7 @@ const DashInbox = ({ showSentEmails }) => {
         <div className="w-[75%] h-full flex items-center justify-center">
           {selectedEmail ? (
             <>
-              <div className="w-[65%] h-full p-4 flex flex-col gap-5  ">
+              <div className="w-[65%] h-full p-4 flex flex-col gap-5 overflow-y-scroll ">
                 <div className="flex items-center justify-between w-full  border-b-[1px] border-b-[#343A40] py-2 pb-4">
                   <div className="flex flex-col justify-center items-start">
                     <h1 className=" text-[#343A40] dark:text-white font-Inter-SemiBold text-xl tracking-wide">
@@ -217,7 +247,9 @@ const DashInbox = ({ showSentEmails }) => {
                       className="flex items-center text-base bg-white dark:bg-[#1F1F1F] border-2 border-[#DFE3E8] dark:border-[#343A40] p-2 rounded-md focus:outline-none"
                     >
                       <span
-                        className={`w-4 h-4 rounded-full ${selectedStatus.color} ${
+                        className={`w-4 h-4 rounded-full ${
+                          selectedStatus.color
+                        } ${
                           theme === "dark"
                             ? "border-[#2D3833]"
                             : "border-[#E1E1E1]"
@@ -285,8 +317,12 @@ const DashInbox = ({ showSentEmails }) => {
                     {selectedEmail.body}
                   </div>
                 </div>
+
+                {/* Render replies below the main mail */}
+                {replies.map((reply, index) => (
+                  <ReplyCard key={index} reply={reply} theme={theme} />
+                ))}
                 <div className="self-start align-bottom w-[90%]">
-                
                   <button
                     onClick={() => setOpenModal(true)}
                     type="submit"
@@ -347,13 +383,17 @@ const DashInbox = ({ showSentEmails }) => {
                 </div>
                 <div className="flex flex-col items-center justify-center gap-6 w-full px-4 font-Inter-Regular">
                   <div className="w-full flex items-center justify-between">
-                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">Name</h1>
+                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">
+                      Name
+                    </h1>
                     <p className="text-[0.9rem] text-[#B9B9B9]">
                       {selectedEmail.from.username}
                     </p>
                   </div>
                   <div className="w-full flex items-center justify-between">
-                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">Contact No</h1>
+                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">
+                      Contact No
+                    </h1>
                     <p className="text-[0.9rem] text-[#B9B9B9]">
                       {selectedEmail.from.contactNo
                         ? selectedEmail.from.contactNo
@@ -361,13 +401,17 @@ const DashInbox = ({ showSentEmails }) => {
                     </p>
                   </div>
                   <div className="w-full flex items-center justify-between">
-                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">Email ID</h1>
+                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">
+                      Email ID
+                    </h1>
                     <p className="text-[0.9rem] text-[#B9B9B9]">
                       {selectedEmail.from.email}
                     </p>
                   </div>
                   <div className="w-full flex items-center justify-between">
-                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">Company Name</h1>
+                    <h1 className="text-[0.85rem] text-[#637381] dark:text-white">
+                      Company Name
+                    </h1>
                     <p className="text-[0.9rem] text-[#B9B9B9]">
                       {selectedEmail.from.company
                         ? selectedEmail.from.company

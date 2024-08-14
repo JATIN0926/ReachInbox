@@ -36,6 +36,7 @@ const SignUp = () => {
       toast.success("Signin Successfull!");
       navigate("/");
     } catch (error) {
+      dispatch(signInFailure(error));
       console.log(error);
       toast.error("Something went wrong!");
     }
