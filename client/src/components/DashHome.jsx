@@ -1,7 +1,7 @@
 const DashHome = () => {
   return (
-    <div className=" absolute right-0 top-[15%] w-[93%] h-[87vh] max-h-[90vh] bg-black text-white">
-      <div className="w-full h-full flex items-center justify-center">
+    <div className=" absolute right-0 top-[15%] w-[93%] h-[87vh] max-h-[90vh]  overflow-hidden">
+      <div className="w-full h-full flex items-center justify-center overflow-hidden">
         <div className=" flex flex-col items-center justify-center gap-4 w-full">
           <img
             src="/images/No_Message_illustration.png"

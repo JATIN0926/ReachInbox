@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 
 export const sendMail = async (req, res) => {
   try {
-    const { to, subject, body } = req.body;
+    const { to, subject, body ,status = null } = req.body;
     const fromUserId = req.user.id;
 
     const recipient = await User.findOne({ email: to });
@@ -23,6 +23,7 @@ export const sendMail = async (req, res) => {
       to: recipient._id,
       subject,
       body,
+      status 
     });
 
     await User.findByIdAndUpdate(fromUserId, {
@@ -54,10 +55,68 @@ export const getInbox = async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const inboxEmails = user.inboxes;
+    // Filter emails to include only those received by the user
+    const inboxEmails = user.inboxes.filter(email => email.to._id.toString() === userId);
 
     res.status(200).json(inboxEmails);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve inbox emails" });
+  }
+};
+
+
+export const getSentEmails = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).populate({
+      path: "inboxes",
+      populate: [
+        { path: "from", select: "email username contactNo company" },
+        { path: "to", select: "email username contactNo company" },
+      ],
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Filter emails to include only those sent by the user
+    const sentEmails = user.inboxes.filter(email => email.from._id.toString() === userId);
+
+    res.status(200).json(sentEmails);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve sent emails" });
+  }
+};
+
+
+export const updateMailStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const message = await Message.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    res.status(200).json(message);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update status' });
+  }
+};
+
+
+export const sendReply = async (req, res) => {
+  console.log(req.body)
+  const { to, subject, body, replyTo } = req.body;
+  try {
+    const newMessage = new Message({
+      from: req.user.id,
+      to,
+      subject,
+      body,
+      replyTo
+    });
+    await newMessage.save();
+    res.status(201).json({ message: "Reply sent successfully", newMessage });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to send reply", error });
   }
 };

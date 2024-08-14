@@ -30,13 +30,6 @@ export const {
   signInStart,
   signInSucess,
   signInFailure,
-  updateStart,
-  updateFailure,
-  updateSuccess,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure,
-  signoutSuccess,
 } = userSlice.actions;
 
 export default userSlice.reducer;

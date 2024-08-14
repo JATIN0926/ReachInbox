@@ -23,7 +23,17 @@ const messageSchema = new mongoose.Schema(
     isRead: {
       type: Boolean,
       default: false
-    }
+    },
+    status: {
+      type: String,
+      enum: ["Meeting Completed", "Interested", "Closed", "Meeting Booked"],
+      default: null 
+    },
+    replyTo: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null
+    }]    
   },
   { timestamps: true }
 );

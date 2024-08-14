@@ -18,11 +18,12 @@ const HomePage = () => {
   }, [location.search]);
 
   return (
-    <div className="bg-black min-h-screen w-screen max-w-full">
+    <div className="min-h-screen w-screen max-w-full">
       <Navbar />
       <DashSidebar />
       {!tab && <DashHome />}
-      {tab === "inbox" && <DashInbox />}
+      {tab === "inbox" && <DashInbox showSentEmails={false} />}
+      {tab === "sent" && <DashInbox showSentEmails={true} />    }
       {tab === "email" && <ComposeMail />}
     </div>
   );
